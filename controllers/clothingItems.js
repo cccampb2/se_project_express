@@ -23,7 +23,9 @@ const createItem = (req, res) => {
       if (err.name === "ValidationError") {
         return res.status(INVALID_DATA).send({ message: err.message });
       }
-      return res.status(SERVER_ERROR).send({ message: err.message });
+      return res
+        .status(SERVER_ERROR)
+        .send({ message: "An error has occurred on the server" });
     });
 };
 
@@ -45,7 +47,9 @@ const deleteItem = (req, res) => {
       if (err.statusCode === NOT_FOUND) {
         return res.status(NOT_FOUND).send({ message: err.message });
       }
-      return res.status(SERVER_ERROR).send({ message: err.message });
+      return res
+        .status(SERVER_ERROR)
+        .send({ message: "An error has occurred on the server" });
     });
 };
 
@@ -70,7 +74,9 @@ const likeItem = (req, res) => {
       if (err.name === "CastError") {
         return res.status(INVALID_DATA).send({ message: err.message });
       }
-      return res.status(SERVER_ERROR).send({ message: err.message });
+      return res
+        .status(SERVER_ERROR)
+        .send({ message: "An error has occurred on the server" });
     });
 };
 
@@ -95,17 +101,10 @@ const unlikeItem = (req, res) => {
       if (err.name === "CastError") {
         return res.status(INVALID_DATA).send({ message: err.message });
       }
-      return res.status(SERVER_ERROR).send({ message: err.message });
+      return res
+        .status(SERVER_ERROR)
+        .send({ message: "An error has occurred on the server" });
     });
 };
-
-/*
-
-module.exports.dislikeItem = (req, res) => ClothingItem.findByIdAndUpdate(
-  req.params.itemId,
-  { $pull: { likes: req.user._id } }, // remove _id from the array
-  { new: true },
-)
- */
 
 module.exports = { getItems, createItem, deleteItem, likeItem, unlikeItem };
