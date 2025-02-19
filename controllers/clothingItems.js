@@ -37,6 +37,12 @@ const deleteItem = (req, res) => {
     .then((item) => res.status(200).send(item))
     .catch((err) => {
       console.log(err);
+      if (err.name === "CastError") {
+        return res.status(INVALID_DATA).send({ message: err.message });
+      }
+      if (err.statusCode == NOT_FOUND) {
+        return res.status(NOT_FOUND).send({ message: err.message });
+      }
       return res.status(SERVER_ERROR).send({ message: err.message });
     });
 };
@@ -84,7 +90,7 @@ const unlikeItem = (req, res) => {
       if (err.statusCode == NOT_FOUND) {
         return res.status(NOT_FOUND).send({ message: err.message });
       }
-      if (err.name === "CastError") {
+      if (err.name == "CastError") {
         return res.status(INVALID_DATA).send({ message: err.message });
       }
       return res.status(SERVER_ERROR).send({ message: err.message });
