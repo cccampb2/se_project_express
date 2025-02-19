@@ -1,6 +1,8 @@
 const ClothingItems = require("../models/clothingItems");
 const { NOT_FOUND, SERVER_ERROR, INVALID_DATA } = require("../utils/errors");
 
+/* eslint no-underscore-dangle: 0 */
+
 const getItems = (req, res) => {
   ClothingItems.find({})
     .then((items) => res.status(200).send(items))
