@@ -11,7 +11,7 @@ const getItems = (req, res) => {
 };
 
 const createItem = (req, res) => {
-  const { name, weather, imageUrl, user } = req.body;
+  const { name, weather, imageUrl } = req.body;
   const owner = req.user._id;
 
   ClothingItems.create({ name, weather, imageUrl, owner })
@@ -40,7 +40,7 @@ const deleteItem = (req, res) => {
       if (err.name === "CastError") {
         return res.status(INVALID_DATA).send({ message: err.message });
       }
-      if (err.statusCode == NOT_FOUND) {
+      if (err.statusCode === NOT_FOUND) {
         return res.status(NOT_FOUND).send({ message: err.message });
       }
       return res.status(SERVER_ERROR).send({ message: err.message });
@@ -62,7 +62,7 @@ const likeItem = (req, res) => {
     .catch((err) => {
       console.error(err);
 
-      if (err.statusCode == NOT_FOUND) {
+      if (err.statusCode === NOT_FOUND) {
         return res.status(NOT_FOUND).send({ message: err.message });
       }
       if (err.name === "CastError") {
@@ -87,10 +87,10 @@ const unlikeItem = (req, res) => {
     .catch((err) => {
       console.error(err);
 
-      if (err.statusCode == NOT_FOUND) {
+      if (err.statusCode === NOT_FOUND) {
         return res.status(NOT_FOUND).send({ message: err.message });
       }
-      if (err.name == "CastError") {
+      if (err.name === "CastError") {
         return res.status(INVALID_DATA).send({ message: err.message });
       }
       return res.status(SERVER_ERROR).send({ message: err.message });

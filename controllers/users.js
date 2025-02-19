@@ -41,11 +41,11 @@ const getUser = (req, res) => {
       if (err.statusCode === NOT_FOUND) {
         return res.status(NOT_FOUND).send({ message: err.message });
       }
-      if (err.name == "DocumentNotFoundError") {
+      if (err.name === "DocumentNotFoundError") {
         return res.status(NOT_FOUND).send({ message: err.message });
       }
 
-      if (err.name == "CastError") {
+      if (err.name === "CastError") {
         return res.status(INVALID_DATA).send({ message: err.message });
       }
 
