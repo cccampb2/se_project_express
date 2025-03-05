@@ -1,3 +1,3 @@
-JWT_SECRET = 45;
+JWT_SECRET = "caleb";
 
 module.exports = JWT_SECRET;

@@ -1,11 +1,10 @@
 const express = require("express");
+const cors = require("cors");
 
 const app = express();
 const mongoose = require("mongoose");
 
 const mainRouter = require("./routes/index");
-
-/* eslint no-underscore-dangle: 0 */
 
 const { PORT = 3001 } = process.env;
 mongoose
@@ -17,12 +16,7 @@ mongoose
 
 app.use(express.json());
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: "67b134ffb093b2aea0b18121",
-  };
-  next();
-});
+app.use(cors());
 
 app.use("/", mainRouter);
 

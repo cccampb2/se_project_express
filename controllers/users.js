@@ -32,7 +32,11 @@ const createUser = (req, res) => {
         password: hash,
       })
     )
-    .then((user) => res.status(201).send(user))
+    .then((user) => {
+      const userResponse = user.toObject();
+      delete userResponse.password;
+      res.status(201).send(userResponse);
+    })
     .catch((err) => {
       console.error(err);
       if (err.name === "ValidationError") {
@@ -49,9 +53,9 @@ const createUser = (req, res) => {
     });
 };
 
-const getUser = (req, res) => {
-  const { userId } = req.params;
-  User.findById(userId)
+const getCurrentUser = (req, res) => {
+  const { _id } = req.user;
+  User.findById(_id)
     .orFail(() => {
       const error = new Error("User ID not found");
       error.statusCode = NOT_FOUND;
@@ -80,7 +84,16 @@ const getUser = (req, res) => {
 const login = (req, res) => {
   const { email, password } = req.body;
 
+  if (!email) {
+    return res.status(INVALID_DATA).send({ message: "Email is required" });
+  }
+
+  if (!password) {
+    return res.status(INVALID_DATA).send({ message: "Password is required" });
+  }
+
   return User.findUserByCredentials(email, password)
+
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: "7d",
@@ -88,8 +101,43 @@ const login = (req, res) => {
       res.status(200).send({ token });
     })
     .catch((err) => {
+      console.log(err);
+      if (err.name === "CastError") {
+        return res.status(INVALID_DATA).send({ message: "User ID not found" });
+      }
       res.status(401).send({ message: "Incorrect email or password" });
     });
 };
 
-module.exports = { getUsers, createUser, getUser, login };
+const updateProfile = (req, res) => {
+  const { name, avatar } = req.body;
+
+  if (!name && !avatar) {
+    return res.status(INVALID_DATA).json({
+      message: "At least one field (name or avatar) must be provided.",
+    });
+  }
+
+  User.findByIdAndUpdate(
+    req.user._id,
+    { name, avatar },
+    { new: true, runValidators: true }
+  )
+    .orFail(() => {
+      const error = new Error("User not found");
+      error.statusCode = NOT_FOUND;
+      throw error;
+    })
+    .then((user) => {
+      res.status(200).send(user);
+    })
+    .catch((err) => {
+      console.error(err);
+      if (err.statusCode === NOT_FOUND) {
+        return res.status(NOT_FOUND).send({ message: "User not found" });
+      }
+      res.status(SERVER_ERROR).send({ message: "Internal Server Error" });
+    });
+};
+
+module.exports = { getUsers, createUser, getCurrentUser, login, updateProfile };

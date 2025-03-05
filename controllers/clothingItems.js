@@ -32,13 +32,24 @@ const createItem = (req, res) => {
 const deleteItem = (req, res) => {
   const { itemId } = req.params;
 
-  ClothingItems.findByIdAndDelete(itemId)
+  ClothingItems.findById(itemId)
     .orFail(() => {
       const error = new Error("Item ID not found");
       error.statusCode = NOT_FOUND;
       throw error;
     })
-    .then((item) => res.status(200).send(item))
+    .then((item) => {
+      if (item.owner.toString() !== req.user._id) {
+        return res
+          .status(403)
+          .send({ message: "You can only delete your own items" });
+      }
+
+      // If owner matches, proceed with deletion
+      return ClothingItems.findByIdAndDelete(itemId).then((deletedItem) =>
+        res.status(200).send(deletedItem)
+      );
+    })
     .catch((err) => {
       console.log(err);
       if (err.name === "CastError") {
