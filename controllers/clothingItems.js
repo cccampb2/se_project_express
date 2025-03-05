@@ -1,5 +1,10 @@
 const ClothingItems = require("../models/clothingItems");
-const { NOT_FOUND, SERVER_ERROR, INVALID_DATA } = require("../utils/errors");
+const {
+  NOT_FOUND,
+  SERVER_ERROR,
+  INVALID_DATA,
+  FORBIDDEN,
+} = require("../utils/errors");
 
 /* eslint no-underscore-dangle: 0 */
 
@@ -41,11 +46,10 @@ const deleteItem = (req, res) => {
     .then((item) => {
       if (item.owner.toString() !== req.user._id) {
         return res
-          .status(403)
+          .status(FORBIDDEN)
           .send({ message: "You can only delete your own items" });
       }
 
-      // If owner matches, proceed with deletion
       return ClothingItems.findByIdAndDelete(itemId).then((deletedItem) =>
         res.status(200).send(deletedItem)
       );

@@ -7,18 +7,8 @@ const {
   SERVER_ERROR,
   INVALID_DATA,
   CONFLICT_ERROR,
+  UNAUTHORIZED,
 } = require("../utils/errors");
-
-const getUsers = (req, res) => {
-  User.find({})
-    .then((users) => res.status(200).send(users))
-    .catch((err) => {
-      console.error(err);
-      return res
-        .status(SERVER_ERROR)
-        .send({ message: "An error has occurred on the server" });
-    });
-};
 
 const createUser = (req, res) => {
   const { name, avatar, password, email } = req.body;
@@ -102,10 +92,14 @@ const login = (req, res) => {
     })
     .catch((err) => {
       console.log(err);
-      if (err.name === "CastError") {
-        return res.status(INVALID_DATA).send({ message: "User ID not found" });
+      if (err.message === "Incorrect email or password") {
+        return res
+          .status(UNAUTHORIZED)
+          .send({ message: "Incorrect email or password" });
       }
-      return res.status(401).send({ message: "Incorrect email or password" });
+      return res
+        .status(SERVER_ERROR)
+        .send({ message: "An error has occurred on the server" });
     });
 };
 
@@ -118,7 +112,7 @@ const updateProfile = (req, res) => {
     });
   }
 
-  User.findByIdAndUpdate(
+  return User.findByIdAndUpdate(
     req.user._id,
     { name, avatar },
     { new: true, runValidators: true }
@@ -131,6 +125,10 @@ const updateProfile = (req, res) => {
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       console.error(err);
+
+      if (err.name === "ValidationError") {
+        return res.status(INVALID_DATA).send({ message: err.message });
+      }
       if (err.statusCode === NOT_FOUND) {
         return res.status(NOT_FOUND).send({ message: "User not found" });
       }
@@ -140,4 +138,4 @@ const updateProfile = (req, res) => {
     });
 };
 
-module.exports = { getUsers, createUser, getCurrentUser, login, updateProfile };
+module.exports = { createUser, getCurrentUser, login, updateProfile };
