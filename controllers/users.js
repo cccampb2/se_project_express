@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
-const User = require("../models/users");
 const bcrypt = require("bcrypt");
+const User = require("../models/users");
 const JWT_SECRET = require("../utils/config");
 const {
   NOT_FOUND,
@@ -113,7 +113,7 @@ const updateProfile = (req, res) => {
   const { name, avatar } = req.body;
 
   if (!name && !avatar) {
-    return res.status(INVALID_DATA).json({
+    return res.status(INVALID_DATA).send({
       message: "At least one field (name or avatar) must be provided.",
     });
   }
@@ -128,9 +128,7 @@ const updateProfile = (req, res) => {
       error.statusCode = NOT_FOUND;
       throw error;
     })
-    .then((user) => {
-      return res.status(200).send(user);
-    })
+    .then((user) => res.status(200).send(user))
     .catch((err) => {
       console.error(err);
       if (err.statusCode === NOT_FOUND) {
