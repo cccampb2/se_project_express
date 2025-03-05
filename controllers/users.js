@@ -1,6 +1,6 @@
+const jwt = require("jsonwebtoken");
 const User = require("../models/users");
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
 const JWT_SECRET = require("../utils/config");
 const {
   NOT_FOUND,
@@ -105,7 +105,7 @@ const login = (req, res) => {
       if (err.name === "CastError") {
         return res.status(INVALID_DATA).send({ message: "User ID not found" });
       }
-      res.status(401).send({ message: "Incorrect email or password" });
+      return res.status(401).send({ message: "Incorrect email or password" });
     });
 };
 
@@ -129,14 +129,16 @@ const updateProfile = (req, res) => {
       throw error;
     })
     .then((user) => {
-      res.status(200).send(user);
+      return res.status(200).send(user);
     })
     .catch((err) => {
       console.error(err);
       if (err.statusCode === NOT_FOUND) {
         return res.status(NOT_FOUND).send({ message: "User not found" });
       }
-      res.status(SERVER_ERROR).send({ message: "Internal Server Error" });
+      return res
+        .status(SERVER_ERROR)
+        .send({ message: "Internal Server Error" });
     });
 };
 
