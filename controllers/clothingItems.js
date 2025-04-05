@@ -1,23 +1,21 @@
 const ClothingItems = require("../models/clothingItems");
 const {
   NOT_FOUND,
-  SERVER_ERROR,
-  INVALID_DATA,
-  FORBIDDEN,
+
+  BadRequestError,
+  ForbiddenError,
+  NotFoundError,
 } = require("../utils/errors");
 
 /* eslint no-underscore-dangle: 0 */
 
-const getItems = (req, res) => {
+const getItems = (req, res, next) => {
   ClothingItems.find({})
     .then((items) => res.status(200).send(items))
-    .catch((err) => {
-      console.error(err);
-      return res.status(SERVER_ERROR).send({ message: err.message });
-    });
+    .catch(next);
 };
 
-const createItem = (req, res) => {
+const createItem = (req, res, next) => {
   const { name, weather, imageUrl } = req.body;
   const owner = req.user._id;
 
@@ -26,28 +24,25 @@ const createItem = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "ValidationError") {
-        return res.status(INVALID_DATA).send({ message: err.message });
+        next(new BadRequestError(err.message));
       }
-      return res
-        .status(SERVER_ERROR)
-        .send({ message: "An error has occurred on the server" });
+
+      next(err);
     });
 };
 
-const deleteItem = (req, res) => {
+const deleteItem = (req, res, next) => {
   const { itemId } = req.params;
 
   ClothingItems.findById(itemId)
     .orFail(() => {
-      const error = new Error("Item ID not found");
+      const error = new Error("Item Id not found.");
       error.statusCode = NOT_FOUND;
       throw error;
     })
     .then((item) => {
       if (item.owner.toString() !== req.user._id) {
-        return res
-          .status(FORBIDDEN)
-          .send({ message: "You can only delete your own items" });
+        next(new ForbiddenError("You can only delete your own items"));
       }
 
       return ClothingItems.findByIdAndDelete(itemId).then((deletedItem) =>
@@ -57,18 +52,16 @@ const deleteItem = (req, res) => {
     .catch((err) => {
       console.log(err);
       if (err.name === "CastError") {
-        return res.status(INVALID_DATA).send({ message: err.message });
+        next(new BadRequestError(err.message));
       }
       if (err.statusCode === NOT_FOUND) {
-        return res.status(NOT_FOUND).send({ message: err.message });
+        next(new NotFoundError(err.message));
       }
-      return res
-        .status(SERVER_ERROR)
-        .send({ message: "An error has occurred on the server" });
+      next(err);
     });
 };
 
-const likeItem = (req, res) => {
+const likeItem = (req, res, next) => {
   ClothingItems.findByIdAndUpdate(
     req.params.itemId,
     { $addToSet: { likes: req.user._id } },
@@ -84,25 +77,23 @@ const likeItem = (req, res) => {
       console.error(err);
 
       if (err.statusCode === NOT_FOUND) {
-        return res.status(NOT_FOUND).send({ message: err.message });
+        next(new NotFoundError(err.message));
       }
       if (err.name === "CastError") {
-        return res.status(INVALID_DATA).send({ message: err.message });
+        next(new BadRequestError(err.message));
       }
-      return res
-        .status(SERVER_ERROR)
-        .send({ message: "An error has occurred on the server" });
+      next(err);
     });
 };
 
-const unlikeItem = (req, res) => {
+const unlikeItem = (req, res, next) => {
   ClothingItems.findByIdAndUpdate(
     req.params.itemId,
     { $pull: { likes: req.user._id } },
     { new: true }
   )
     .orFail(() => {
-      const error = new Error("Item ID not found");
+      const error = new Error("Item Id not found.");
       error.statusCode = NOT_FOUND;
       throw error;
     })
@@ -111,14 +102,12 @@ const unlikeItem = (req, res) => {
       console.error(err);
 
       if (err.statusCode === NOT_FOUND) {
-        return res.status(NOT_FOUND).send({ message: err.message });
+        next(new NotFoundError(err.message));
       }
       if (err.name === "CastError") {
-        return res.status(INVALID_DATA).send({ message: err.message });
+        next(new BadRequestError(err.message));
       }
-      return res
-        .status(SERVER_ERROR)
-        .send({ message: "An error has occurred on the server" });
+      next(err);
     });
 };
 

@@ -3,6 +3,10 @@ const cors = require("cors");
 
 const app = express();
 const mongoose = require("mongoose");
+const errorHandler = require("./middlewares/error-handler");
+const { errors } = require("celebrate");
+const { requestLogger, errorLogger } = require("./middlewares/logger");
+require("dotenv").config();
 
 const mainRouter = require("./routes/index");
 
@@ -18,7 +22,15 @@ app.use(express.json());
 
 app.use(cors());
 
+app.use(requestLogger);
+
 app.use("/", mainRouter);
+
+app.use(errorLogger);
+
+app.use(errors());
+
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}`);
