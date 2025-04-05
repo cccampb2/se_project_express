@@ -11,6 +11,13 @@ const {
   validateUserLogin,
 } = require("../middlewares/validation");
 
+router.get("/crash-test", () => {
+  setTimeout(() => {
+    console.log("helo");
+    throw new Error("Server will crash now");
+  }, 0);
+});
+
 router.post("/signin", validateUserLogin, login);
 router.post("/signup", validateUserInfo, createUser);
 router.use("/items", clothingItemRouter);
