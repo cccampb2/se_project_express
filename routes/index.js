@@ -11,11 +11,12 @@ const {
   validateUserLogin,
 } = require("../middlewares/validation");
 
-router.get("/crash-test", () => {
+router.get("/crash-test", (req, res) => {
   setTimeout(() => {
     console.log("hello");
     throw new Error("Server will crash now");
   }, 0);
+  res.send("Crash Test");
 });
 
 router.post("/signin", validateUserLogin, login);
