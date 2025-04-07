@@ -22,4 +22,4 @@ Features
 
 ## Deployed
 
-(What to Wear)['https://www.whattowear.ftp.sh']
+[What to Wear](https://www.whattowear.ftp.sh)
