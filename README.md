@@ -19,3 +19,7 @@ Features
 `npm run start` — to launch the server
 
 `npm run dev` — to launch the server with the hot reload feature
+
+## Deployed
+
+(What to Wear)['https://www.whattowear.ftp.sh']

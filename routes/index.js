@@ -13,7 +13,7 @@ const {
 
 router.get("/crash-test", () => {
   setTimeout(() => {
-    console.log("helo");
+    console.log("hello");
     throw new Error("Server will crash now");
   }, 0);
 });
