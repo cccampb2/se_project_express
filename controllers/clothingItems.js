@@ -1,11 +1,8 @@
 const ClothingItems = require("../models/clothingItems");
-const {
-  NOT_FOUND,
-
-  BadRequestError,
-  ForbiddenError,
-  NotFoundError,
-} = require("../utils/errors");
+const { NOT_FOUND } = require("../utils/notFoundError");
+const { BadRequestError } = require("../utils/badRequestError");
+const { ForbiddenError } = require("../utils/forbiddenError");
+const { NotFoundError } = require("../utils/notFoundError");
 
 /* eslint no-underscore-dangle: 0 */
 
@@ -42,7 +39,7 @@ const deleteItem = (req, res, next) => {
     })
     .then((item) => {
       if (item.owner.toString() !== req.user._id) {
-        next(new ForbiddenError("You can only delete your own items"));
+        return next(new ForbiddenError("You can only delete your own items"));
       }
 
       return ClothingItems.findByIdAndDelete(itemId).then((deletedItem) =>
